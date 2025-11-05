@@ -25,22 +25,43 @@ def forward(image, label):
 
     return out, loss, acc
 
-print("MNIST CNN initialized")
+def train(im, label, lr=.005):
+    '''
+    Completes a full training step on the given image and label/
+    Returns the cross-entropy loss and accuracy
+    '''
+    # Forward
+    out, loss, acc = forward(im, label)
 
-loss = 0
-num_correct = 0
+    # Calculate initial gradient
+    gradient = np.zeros(10)
+    gradient[label] = -1 / out[label]
 
-# With random weight initialization (and no backpropagation),
-# the CNN should be as good as random guessing, so around 10% accuracy
-for i, (im, label) in enumerate(zip(test_images, test_labels)):
-    _, l, acc = forward(im, label)
-    loss += l
-    num_correct += acc
+    # Backprop
+    gradient = softmax.backprop(gradient, lr)
+    # TODO: backprop MaxPool2 layer
+    # TODO: backprop Conv3x3 layer
 
-    if i % 100 == 99:
-        print(
-        '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
-        (i + 1, loss / 100, num_correct)
-        )
-        loss = 0
-        num_correct = 0
+    return loss, acc
+
+
+if __name__ == "__main__":
+    print("MNIST CNN initialized")
+
+    loss = 0
+    num_correct = 0
+
+    for i, (im, label) in enumerate(zip(test_images, test_labels)):
+        if i % 100 == 99:
+            print(
+                '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
+                (i + 1, loss / 100, num_correct)
+            )
+            loss = 0
+            num_correct = 0
+
+        l, acc = train(im, label)
+        loss += l
+        num_correct += acc
+
+        
