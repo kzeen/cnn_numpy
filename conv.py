@@ -17,6 +17,8 @@ class Conv3x3:
         Generates all possible 3x3 image regions using "valid padding".
         - image is a 2D numpy array (assumes it is a single channel image, not RGB)
         '''
+        self.last_input = input
+
         h, w = image.shape
 
         for i in range(h - 2):
@@ -37,3 +39,19 @@ class Conv3x3:
             output[i, j] = np.sum(im_region * self.filters, axis=(1, 2))
 
         return output
+    
+    def backprop(self, d_L_d_out, learn_rate):
+        '''
+        Performs a backward pass of the conv layer.
+        '''
+        d_L_d_filters = np.zeros(self.filters.shape)
+
+        for im_region, i, j in self.iterate_regions(self.last_input):
+            for f in range(self.num_filters):
+                d_L_d_filters[f] += d_L_d_out[i, j, f] * im_region
+
+        # Update filters
+        self.filters -= learn_rate * d_L_d_filters
+
+        # Return nothing because this is used as the first layer
+        return None
