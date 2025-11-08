@@ -48,22 +48,6 @@ def train(im, label, lr=.005):
 if __name__ == "__main__":
     print("MNIST CNN initialized")
 
-    loss = 0
-    num_correct = 0
-
-    for i, (im, label) in enumerate(zip(test_images, test_labels)):
-        if i % 100 == 99:
-            print(
-                '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
-                (i + 1, loss / 100, num_correct)
-            )
-            loss = 0
-            num_correct = 0
-
-        l, acc = train(im, label)
-        loss += l
-        num_correct += acc
-
     # Train the CNN for 3 epochs
     for epoch in range(3):
         print('--- Epoch %d ---' % (epoch + 1))
