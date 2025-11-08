@@ -39,8 +39,8 @@ def train(im, label, lr=.005):
 
     # Backprop
     gradient = softmax.backprop(gradient, lr)
-    # TODO: backprop MaxPool2 layer
-    # TODO: backprop Conv3x3 layer
+    gradient = pool.backprop(gradient)
+    gradient = conv.backprop(gradient, lr)
 
     return loss, acc
 
@@ -64,4 +64,40 @@ if __name__ == "__main__":
         loss += l
         num_correct += acc
 
-        
+    # Train the CNN for 3 epochs
+    for epoch in range(3):
+        print('--- Epoch %d ---' % (epoch + 1))
+
+        # Shuffle the training data
+        permutation = np.random.permutation(len(train_images))
+        train_images = train_images[permutation]
+        train_labels = train_labels[permutation]
+
+        # Train
+        loss = 0
+        num_correct = 0
+        for i, (im, label) in enumerate(zip(train_images, train_labels)):
+            if i > 0 and i % 100 == 99:
+                print(
+                    '[Step %d] Past 100 steps: Average Loss %.3f | Accuracy: %d%%' %
+                    (i + 1, loss / 100, num_correct)
+                )
+                loss = 0
+                num_correct = 0
+
+            l, acc = train(im, label)
+            loss += l
+            num_correct += acc
+
+        # Test the CNN
+        print('\n--- Testing the CNN ---')
+        loss = 0
+        num_correct = 0
+        for im, label in zip(test_images, test_labels):
+            _, l, acc = forward(im, label)
+            loss += l
+            num_correct += acc
+
+        num_tests = len(test_images)
+        print('Test Loss:', loss / num_tests)
+        print('Test Accuracy:', num_correct / num_tests)
